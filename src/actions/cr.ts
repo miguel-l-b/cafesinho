@@ -48,6 +48,43 @@ async function clearReg(react: MessageReaction, user: User | PartialUser) {
         .catch(e => console.log("error Cor reação"))
 }
 
+export function HandleCrRemove(app: Client, react: MessageReaction, user: User | PartialUser) {
+    const member = react.message.guild?.member(user.id)
+    if(react.emoji.name === "Coffee"){
+        return member?.roles.remove("855615210936991745")
+    }
+    if(react.emoji.name === "🎛"){
+        return member?.roles.remove("855615755894915084")
+    }
+    if(react.emoji.name === "👯"){
+        return member?.roles.remove("855615999927255050")
+    }
+    if(react.emoji.name === "🎸"){
+        return member?.roles.remove("855616096061095937")
+    }
+    if(react.emoji.name === "💸"){
+        return member?.roles.remove("855616247332601887")
+    }
+    if(react.emoji.name === "🍻"){
+        return member?.roles.remove("855616433991188570")
+    }
+    if(react.emoji.name === "⛓"){
+        return member?.roles.remove("855616542426267679")
+    }
+    if(react.emoji.name === "🥁"){
+        return member?.roles.remove("855616695628464139")
+    }
+    if(react.emoji.name === "🎻"){
+        return member?.roles.remove("855616810695262218")
+    }
+    if(react.emoji.name === "🎷"){
+        return member?.roles.remove("855616976566878238")
+    }
+    if(react.emoji.name === "IRADO"){
+        return member?.roles.remove("855617120850280459")
+    }
+}
+
 export async function HandleCrAdd(app: Client, react: MessageReaction, user: User | PartialUser) {
     const member = react.message.guild?.member(user.id)
     //color
@@ -122,7 +159,7 @@ export async function HandleCrAdd(app: Client, react: MessageReaction, user: Use
         return member?.roles.add("855612969153069076")
     }
     //music
-    if(react.emoji.name === "<:Coffee:855068647197245440>"){
+    if(react.emoji.name === "Coffee"){
         return member?.roles.add("855615210936991745")
     }
     if(react.emoji.name === "🎛"){
@@ -152,7 +189,7 @@ export async function HandleCrAdd(app: Client, react: MessageReaction, user: Use
     if(react.emoji.name === "🎷"){
         return member?.roles.add("855616976566878238")
     }
-    if(react.emoji.name === "<:IRADO:853379939550101514>"){
+    if(react.emoji.name === "IRADO"){
         return member?.roles.add("855617120850280459")
     }
 }
