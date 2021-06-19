@@ -1,13 +1,14 @@
 import { Client, Message } from "discord.js"
+import requiredProps from "../interfaces/required.interface"
 
-export const required = {
-    command: "clear",
-    commandShort: "c",
+export const required: requiredProps = {
+    command: ["clear"],
+    commandShort: ["cls", "cl"],
     dmChannel: false,
+    permission: "MANAGE_MESSAGES"
 }
 
-export async function HandleCommand(app: Client, msg: Message, args: string[]) {
-    if(!msg.member.hasPermission('MANAGE_MESSAGES')) return
+export async function HandleCommand(_app: Client, msg: Message, args: string[]) {
     if(!args[0] || parseInt(args[0]) <= 0)
         return await msg.channel.send(':face_with_monocle: | Quantas? \n > :tools: | `&clear <1-100>`')
 
