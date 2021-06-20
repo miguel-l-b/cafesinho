@@ -1,195 +1,75 @@
-import { Client, MessageReaction, PartialUser, User } from "discord.js";
+import { Client, Message, MessageReaction, PartialMessage, PartialUser, User } from "discord.js";
 import path from "path";
-import { loadJson } from "../utils/json.controller";
+import RulesProps from "../interfaces/rules.interface";
+import { loadJson, setJson } from "../utils/json.controller";
 
 export function requiredCr() { 
-    const data = loadJson(path.resolve("config", "cr.json"))
+    const data: RulesProps[] = loadJson(path.resolve("config", "rules.json"))
     return {
-        msgID: data
+        data: data
+    }
+}
+export async function HandleMsgRemove(msg: Message | PartialMessage) {
+    const newData = requiredCr().data
+    const indexCr = requiredCr().data.findIndex(e=> e.messageID === msg.id)
+    newData.splice(indexCr, 1)
+
+    setJson(path.resolve("config", "rules.json"), newData)
+}
+export async function HandleCrRemove(app: Client, react: MessageReaction, user: User | PartialUser) {
+    const member = react.message.guild?.member(user.id)
+    const indexCr = requiredCr().data.findIndex(e=> e.messageID === react.message.id)
+    const indexReact = requiredCr().data[indexCr].reacts.findIndex(e=> e.emoji === react.emoji.name)
+    const ruleID = requiredCr().data[indexCr].reacts[indexReact].rule
+    member?.roles.remove(ruleID).catch(e => console.log(e))
+}
+export async function HandleCr(app: Client, react: MessageReaction, user: User | PartialUser) {
+    const member = react.message.guild?.member(user.id)
+    let newData = requiredCr().data
+    if(requiredCr().data.findIndex(e=> e.messageID === react.message.id) > -1) {
+        react.users.remove(user.id)
+        const indexCr = requiredCr().data.findIndex(e=> e.messageID === react.message.id)
+        const channel = react.message.channel
+        
+        if(react.emoji.name === "✅") {
+            newData[indexCr].messageID = "?"
+            channel.send(":receipt: Agora mande o ID canal")
+            return setJson(path.resolve("config", "rules.json"), newData)
+        }
+        if(react.emoji.name == "🚫") {
+            newData.splice(indexCr, 1)
+            channel.send("✅ Pronto, mensagem de cargo cancelada")
+            return setJson(path.resolve("config", "rules.json"), newData)
+        }
+        if(react.emoji.name === "🔒") {
+            newData[indexCr].rmReact = true
+            return setJson(path.resolve("config", "rules.json"), newData)
+        }
+    }
+    if(requiredCr().data.findIndex(e=> { if(e.userID === user.id && e.reacts.findIndex(e=> e.messageID === react.message.id)> -1) return true}) > -1){
+        const indexCr = requiredCr().data.findIndex(e=> e.reacts.findIndex(e=> e.messageID === react.message.id) > -1)
+        const indexReact = requiredCr().data[indexCr].reacts.findIndex(e=> e.messageID === react.message.id)
+
+        newData[indexCr].reacts[indexReact].emoji = react.emoji.name
+        return setJson(path.resolve("config", "rules.json"), newData)
     }
 }
 
-async function clearCor(react: MessageReaction, user: User | PartialUser) {
-    react.users.remove(user.id)
-    const member = react.message.guild?.member(user.id)
-        await member?.roles.remove(
-            [
-                "854361023287656488", "854361090272395274", 
-                "854361608050049104", "854361731900112926", 
-                "854361162278633483", "854361265769414676",
-                "854361338247774218", "854361217312751636"
-            ]
-        )
-        .catch(e => console.log("error Cor reação"))
-}
-
-async function clearSex(react: MessageReaction, user: User | PartialUser) {
-    react.users.remove(user.id)
-    const member = react.message.guild?.member(user.id)
-        await member?.roles.remove(
-            [
-                "855610450922045470", "855610671138734080", 
-                "855610502624575548",
-            ]
-        )
-        .catch(e => console.log("error Cor reação"))
-}
-
-async function clearReg(react: MessageReaction, user: User | PartialUser) {
-    react.users.remove(user.id)
-    const member = react.message.guild?.member(user.id)
-        await member?.roles.remove(
-            [
-                "855612012306366475", "855612286109614080", 
-                "855612499637174332", "855612717615153152",
-                "855612857281413160", "855612969153069076",
-            ]
-        )
-        .catch(e => console.log("error Cor reação"))
-}
-
-export function HandleCrRemove(app: Client, react: MessageReaction, user: User | PartialUser) {
-    const member = react.message.guild?.member(user.id)
-    if(react.emoji.name === "Coffee"){
-        return member?.roles.remove("855615210936991745")
-    }
-    if(react.emoji.name === "🎛"){
-        return member?.roles.remove("855615755894915084")
-    }
-    if(react.emoji.name === "👯"){
-        return member?.roles.remove("855615999927255050")
-    }
-    if(react.emoji.name === "🎸"){
-        return member?.roles.remove("855616096061095937")
-    }
-    if(react.emoji.name === "💸"){
-        return member?.roles.remove("855616247332601887")
-    }
-    if(react.emoji.name === "🍻"){
-        return member?.roles.remove("855616433991188570")
-    }
-    if(react.emoji.name === "⛓"){
-        return member?.roles.remove("855616542426267679")
-    }
-    if(react.emoji.name === "🥁"){
-        return member?.roles.remove("855616695628464139")
-    }
-    if(react.emoji.name === "🎻"){
-        return member?.roles.remove("855616810695262218")
-    }
-    if(react.emoji.name === "🎷"){
-        return member?.roles.remove("855616976566878238")
-    }
-    if(react.emoji.name === "IRADO"){
-        return member?.roles.remove("855617120850280459")
-    }
+async function clear(indexCr: number, rule: string, member: any) {
+    await requiredCr().data[indexCr].reacts.map(e => {
+        if(member?.roles.cache.has(e.rule) && e.rule !== rule)
+        member?.roles.remove(e.rule).catch(e => console.log(e))
+    })   
 }
 
 export async function HandleCrAdd(app: Client, react: MessageReaction, user: User | PartialUser) {
     const member = react.message.guild?.member(user.id)
-    //color
-    if(react.emoji.name === "🟢"){
-        await clearCor(react, user)
-        return member?.roles.add("854361023287656488")
-    }
-    if(react.emoji.name === "🟣") {
-        await clearCor(react, user)
-        return member?.roles.add("854361090272395274")
-    }
-    if(react.emoji.name === "💗") {
-        await clearCor(react, user)
-        return member?.roles.add("854361608050049104")
-    }
-    if(react.emoji.name === "🌀"){
-        await clearCor(react, user)
-        return member?.roles.add("854361731900112926")
-    }
-    if(react.emoji.name === "🔵"){
-        await clearCor(react, user)
-        return member?.roles.add("854361162278633483")
-    }
-    if(react.emoji.name === "🟡"){
-        await clearCor(react, user)
-        return member?.roles.add("854361265769414676")
-    }
-    if(react.emoji.name === "🟤"){
-        await clearCor(react, user)
-        return member?.roles.add("854361338247774218")
-    }
-    if(react.emoji.name === "🔴"){
-        await clearCor(react, user)
-        return member?.roles.add("854361217312751636")
-    }
-    //sex
-    if(react.emoji.name === "🙍‍♀️"){
-        await clearSex(react, user)
-        return member?.roles.add("855610450922045470")
-    }
-    if(react.emoji.name === "🙍‍♂️"){
-        await clearSex(react, user)
-        return member?.roles.add("855610671138734080")
-    }
-    if(react.emoji.name === "🙍"){
-        await clearSex(react, user)
-        return member?.roles.add("855610502624575548")
-    }
-    //regions
-    if(react.emoji.name === "⚖️"){
-        await clearReg(react, user)
-        return member?.roles.add("855612012306366475")
-    }
-    if(react.emoji.name === "🌵"){
-        await clearReg(react, user)
-        return member?.roles.add("855612286109614080")
-    }
-    if(react.emoji.name === "🌃"){
-        await clearReg(react, user)
-        return member?.roles.add("855612499637174332")
-    }
-    if(react.emoji.name === "🛖"){
-        await clearReg(react, user)
-        return member?.roles.add("855612717615153152")
-    }
-    if(react.emoji.name === "🥖"){
-        await clearReg(react, user)
-        return member?.roles.add("855612857281413160")
-    }
-    if(react.emoji.name === "🌎"){
-        await clearReg(react, user)
-        return member?.roles.add("855612969153069076")
-    }
-    //music
-    if(react.emoji.name === "Coffee"){
-        return member?.roles.add("855615210936991745")
-    }
-    if(react.emoji.name === "🎛"){
-        return member?.roles.add("855615755894915084")
-    }
-    if(react.emoji.name === "👯"){
-        return member?.roles.add("855615999927255050")
-    }
-    if(react.emoji.name === "🎸"){
-        return member?.roles.add("855616096061095937")
-    }
-    if(react.emoji.name === "💸"){
-        return member?.roles.add("855616247332601887")
-    }
-    if(react.emoji.name === "🍻"){
-        return member?.roles.add("855616433991188570")
-    }
-    if(react.emoji.name === "⛓"){
-        return member?.roles.add("855616542426267679")
-    }
-    if(react.emoji.name === "🥁"){
-        return member?.roles.add("855616695628464139")
-    }
-    if(react.emoji.name === "🎻"){
-        return member?.roles.add("855616810695262218")
-    }
-    if(react.emoji.name === "🎷"){
-        return member?.roles.add("855616976566878238")
-    }
-    if(react.emoji.name === "IRADO"){
-        return member?.roles.add("855617120850280459")
+    const indexCr = requiredCr().data.findIndex(e=> e.messageID === react.message.id)
+    const indexReact = requiredCr().data[indexCr].reacts.findIndex(e=> e.emoji === react.emoji.name)
+    const ruleID = requiredCr().data[indexCr].reacts[indexReact].rule
+    member?.roles.add(ruleID).catch(e => console.log(e))
+    if(!requiredCr().data[indexCr].rmReact || indexCr <= -1){
+        await clear(indexCr, ruleID, member)
+        return react.users.remove(user.id)
     }
 }

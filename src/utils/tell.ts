@@ -1,4 +1,4 @@
-import { Client, DMChannel, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js"
+import { Client, Message, MessageEmbed } from "discord.js"
 import { requiredTell } from "../actions/tell"
 import tellConfigProps from "../interfaces/tellConfig.interface"
 import { loadJson, setJson } from "./json.controller"
@@ -6,7 +6,6 @@ import path from "path"
 import { HandleUpConfig } from ".."
 
 export default async function HandleTellMsg(app: Client, msg: Message) {
-
     if(requiredTell().format === '📢-title'){
         msg.react('✅')
         const m = await msg.channel.send(":bookmark_tabs: Agora dê o contexto")

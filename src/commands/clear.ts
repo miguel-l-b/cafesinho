@@ -9,6 +9,7 @@ export const required: requiredProps = {
 }
 
 export async function HandleCommand(_app: Client, msg: Message, args: string[]) {
+    if(msg.channel.type === "dm") return
     if(!args[0] || parseInt(args[0]) <= 0)
         return await msg.channel.send(':face_with_monocle: | Quantas? \n > :tools: | `&clear <1-100>`')
 
@@ -16,5 +17,5 @@ export async function HandleCommand(_app: Client, msg: Message, args: string[]) 
         return await msg.channel.send(':x: | Opss... \n > :tools: | `&clear <1-100>`')
 
     const deleteAmount = parseInt(args[0])
-    msg.channel.bulkDelete(deleteAmount,true)
+    msg.channel.bulkDelete(deleteAmount,true).catch(e => console.log(e))
 }
