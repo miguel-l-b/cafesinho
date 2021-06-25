@@ -26,10 +26,8 @@ export default function HandleCommands(cmd: string, app: Client, msg: Message, a
                             required.dmChannel === false && msg.channel.type === 'news' ||
                             required.dmChannel === false && msg.channel.type === 'text' ||
                             required.dmChannel === true && msg.channel.type === 'dm'
-                            ){
-                            console.log(required.command[0])
+                            )
                             return HandleCommand(app, msg, args)
-                        }
                         else
                             return undefinedCommand = (undefinedCommand+1)
                     } else

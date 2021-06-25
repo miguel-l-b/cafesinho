@@ -3,6 +3,7 @@ import path from "path/posix"
 import requiredProps from "../interfaces/required.interface"
 import tellConfigProps from "../interfaces/tellConfig.interface"
 import { setJson } from "../utils/json.controller"
+import logs from "../utils/logs"
 
 export const required: requiredProps = {
     command: ["tell"],
@@ -11,10 +12,17 @@ export const required: requiredProps = {
 }
 
 export async function HandleCommand(app: Client, msg: Message, args: string[]) {
-        const m = await msg.channel.send(":speaking_head: | Vamos lá \n > :loudspeaker: Notificação | Anunciar (Embed) - :scroll: Regra (Embed) - :regional_indicator_e: Personalizado (Embed) - :regional_indicator_t: qualquer coisa (Text)")
+    try {
+        const m = await msg.channel.send(
+                ":speaking_head: | Vamos lá "+
+                "\n> :loudspeaker: Notificação | Anunciar (Embed)"+
+                "\n> :scroll: Regra (Embed)"+
+                "\n> 🖖 Bem Vindo (Embed)"+
+                "\n> :regional_indicator_t: qualquer coisa (Text)"
+            )
         m.react('📢')
         m.react('📜')
-        m.react('🇪')
+        m.react('🖖')
         m.react('🇹')
         const data: tellConfigProps = {
             id: m.id,
@@ -22,4 +30,7 @@ export async function HandleCommand(app: Client, msg: Message, args: string[]) {
             memberId: msg.author.id,
         }
         setJson(path.resolve("config", "tell.json"), data)
+    } catch {
+        logs.error("Command Tell")
+    }
 }

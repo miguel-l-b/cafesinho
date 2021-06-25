@@ -3,5 +3,6 @@ export default interface tellConfigProps {
     channelId: string,
     memberId: string,
     format?: string,
+    img?: string,
     content?: object | any,
 }
