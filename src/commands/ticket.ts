@@ -17,5 +17,5 @@ export async function HandleCommand(app: Client, msg: Message, args: string[]) {
         return msg.channel.send(":yellow_circle: Você esqueceu do id da Categoria")
     const m = await msg.channel.send("Reaja para criar o seu canal de voz")
     m.react("🎟️")
-    setJson(path.resolve("config", "ticket.json"), { id: m.id, roleID: args[0], parent: args[1] })
+    setJson(path.resolve("config", "ticket.json"), { id: m.id, roleID: args[0], parent: args[1], channel: msg.channel.id, calls: [] })
 }

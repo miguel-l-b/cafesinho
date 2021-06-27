@@ -2,6 +2,7 @@ import { Client, Message } from "discord.js"
 import fs from "fs"
 import path from "path"
 import requiredProps from "../interfaces/required.interface"
+import logs from "../utils/logs"
 
 interface CommandsProps {
     required: requiredProps
@@ -11,7 +12,7 @@ interface CommandsProps {
 export default function HandleCommands(cmd: string, app: Client, msg: Message, args: string[]) {
     //Search for files from the commands folder
     fs.readdir(path.resolve("src", "commands"), async (err, files) => {
-        const react = msg.react('✅')
+        const react = msg.react('✅').catch(e=> logs.warning("Handle Commands"))
         
         //scan and filter
         let undefinedCommand = 0
@@ -36,10 +37,10 @@ export default function HandleCommands(cmd: string, app: Client, msg: Message, a
         })
 
             if(await handlePaths && undefinedCommand === files.length) {
-                (await react).remove()
-                await msg.react('🚫')
-                const m = await msg.channel.send(":sob: | Infelizmente esse comando não existe")
-                m.delete({ timeout: 5000 }).catch(e => console.log(`Guild Id: ${msg.guild?.id} \n Delete Message Error`, e.code))
+                (await react).remove().catch(e=> logs.warning("Handle Commands"))
+                await msg.react('🚫').catch(e=> logs.warning("Handle Commands"))
+                const m = await msg.channel.send(":sob: | Infelizmente esse comando não existe").catch(e=> logs.warning("Handle Commands"))
+                m.delete({ timeout: 5000 }).catch(e => console.log(`Guild Id: ${msg.guild?.id} \n Delete Message Error`, e.code)).catch(e=> logs.warning("Handle Commands"))
             }
     })
 }

@@ -12,7 +12,7 @@ export default new class logs {
         console.log(colors.red+locate+":\n"+colors.yellow+msg+colors.reset)
     }
     log(locate: string, msg?: string) {
-        console.log(colors.green+locate+":\n"+colors.green+msg+colors.reset)
+        console.log(colors.blue+locate+":\n"+colors.reset+msg+colors.reset)
     }
     warning(locate: string, msg?: string) {
         console.log(colors.yellow+locate+":\n"+colors.cyan+msg+colors.reset)

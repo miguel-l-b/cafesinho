@@ -35,19 +35,19 @@ export default async function HandleCommandCr(_app: Client, msg: Message) {
     const indexCr = requiredCr.findIndex(e => e.channelID === msg.channel.id && e.userID === msg.author.id)
     if(indexCr > -1 && requiredCr[indexCr].messageID === "?") {
         msg.react("☑️")
-        const channel = msg.channel
+        const channel = msg.guild?.channels.cache.get(msg.content)
         let embed = new MessageEmbed()
         .setColor('#a37443')
         .setTitle(requiredCr[indexCr].title)
         .setDescription(requiredCr[indexCr].reacts.map(e=> {
             const em = guild?.emojis.cache.find(em=> em.name === e.emoji)
             if(e.emoji && em?.identifier !== undefined)
-                return`**${guild?.roles.cache.get(e.rule)?.name}**ㅤ<a:Arrow:855151957760933898>ㅤ<:${em?.identifier}>\n`
+                return`**<@&${guild?.roles.cache.get(e.rule)?.id}>**ㅤ<a:Arrow:855151957760933898>ㅤ<:${em?.identifier}>\n`
             if(e.emoji && em?.identifier === undefined)
-                return`**${guild?.roles.cache.get(e.rule)?.name}**ㅤ<a:Arrow:855151957760933898>ㅤ${e.emoji}\n`
+                return`**<@&${guild?.roles.cache.get(e.rule)?.id}>**ㅤ<a:Arrow:855151957760933898>ㅤ${e.emoji}\n`
         }))
         .setFooter('Team '+msg.guild?.name, 'https://cdn.discordapp.com/attachments/845795759127527474/854893821150101544/Logo3PNG.png')
-        const m = await channel.send(embed)
+        const m = await channel?.send(embed)
         requiredCr[indexCr].reacts.map(e=> {
             const em = guild?.emojis.cache.find(em=> em.name === e.emoji)
             if(e.emoji && em?.identifier !== undefined)

@@ -28,7 +28,7 @@ export async function HandleCommand(app: Client, msg: Message, args: string[]) {
         m.react("📑")
         const newData = { type: "config", id: m.id, member: msg.author.id, channelID: msg.channel.id }
         setJson(path.resolve("config", "conf.json"), newData)
-    } catch {
-        logs.error("Command Config")
+    } catch(e) {
+        logs.error("Command Config", e)
     }
 }

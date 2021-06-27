@@ -1,4 +1,4 @@
-import { MessageReaction, PartialUser, User } from "discord.js"
+import { MessageReaction, PartialUser, User, VoiceChannel } from "discord.js"
 import path from "path"
 import { loadJson, setJson } from "../utils/json.controller"
 
@@ -15,15 +15,15 @@ export async function HandleTicket(react: MessageReaction, user: User | PartialU
     let ticket = requiredTicket().data
     react.users.remove(user.id)
     if(!ticket.calls || ticket.calls.findIndex(e=> e.memberID === user.id) <= -1) {
-        const newChannel = await guild?.channels.create(user.username, {
+        const newChannel: VoiceChannel = await guild?.channels.create(user.username, {
             type: "voice",
             parent: requiredTicket().data.parent,
             permissionOverwrites: [
-                { id: "838839610300694579", deny: ["VIEW_CHANNEL", "CONNECT"] },
+                { id: "728707828193165352", deny: ["VIEW_CHANNEL", "CONNECT"] },
                 { id: user.id, allow: ["VIEW_CHANNEL", "CONNECT"] },
             ]
         })
-        ticket.calls = [ ...ticket.calls?ticket.calls:[], { memberID: user.id, channelID: await newChannel.id } ]
+        ticket.calls = [ ...ticket.calls?ticket.calls:[], { memberID: user.id, channelID: await newChannel.id, perm: newChannel.permissionOverwrites } ]
         await newChannel && setJson(path.resolve("config", "ticket.json"), ticket)
     }
 }

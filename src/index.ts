@@ -22,6 +22,8 @@ export function HandleUpConfig() {
     return config
 }
 
+app.on("ready", () => logs.log("Started", app.user?.tag))
+
 app.on("channelDelete", (channel) => {
     const indexChannel = requiredTicket().data.calls.findIndex(e=> e.channelID === channel.id)
     let ticket = requiredTicket().data
@@ -58,9 +60,9 @@ app.on("messageReactionRemove", (react, user) => {
 })
 
 app.on("messageReactionAdd", (react, user) => {
+    try {
     if(user.bot) return
-
-    if(requiredTicket().data.id === react.message.id)
+    if(requiredTicket().data?.id === react.message.id)
         HandleTicket(react, user)
     if(requiredTell().id === react.message.id && requiredTell().memberId === user.id)
         HandleTell(app, react, user)
@@ -77,11 +79,16 @@ app.on("messageReactionAdd", (react, user) => {
         requiredCr().data.findIndex(e=> { if(e.reacts.findIndex(e=> e.messageID === react.message.id)> -1 && e.userID === user.id) return true}) > -1
     )
         HandleCr(app, react, user)
+    } catch(e) {
+        logs.error("Message React", e)
+    }
 })
 
 app.on("messageDelete", (msg) => {
     if(requiredCr().data.findIndex(e=> e.messageID === msg.id) > -1)
         HandleMsgRemove(msg)
+    if(requiredTicket().data.id === msg.id)
+        setJson(path.resolve("config", "ticket.json"), {})
 })
 
 app.on("message", async (msg) => {    
